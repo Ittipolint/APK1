@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, TouchableOpacity, Image, Alert, ScrollView, Saf
 import { Camera } from 'expo-camera';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
+import * as FileSystem from 'expo-file-system';
 import { StatusBar } from 'expo-status-bar';
 
 export default function App() {
@@ -47,11 +48,20 @@ export default function App() {
 
     try {
       let htmlContent = '<html><body style="margin:0;padding:0;background-color:white;">';
-      selectedPhotos.forEach((photo) => {
-        // Ensure uri has file:// prefix for Android local file access in WebView/Print
-        const imgUri = photo.uri.startsWith('file://') ? photo.uri : `file://${photo.uri}`;
+
+      // Convert all selected photos to base64 for reliable PDF embedding on Android
+      const base64Data = await Promise.all(
+        selectedPhotos.map(async (photo) => {
+          const base64 = await FileSystem.readAsStringAsync(photo.uri, {
+            encoding: FileSystem.EncodingType.Base64,
+          });
+          return `data:image/jpeg;base64,${base64}`;
+        })
+      );
+
+      base64Data.forEach((dataUri) => {
         htmlContent += `<div style="page-break-after: always; text-align: center; width: 100%;">
-          <img src="${imgUri}" style="width: 100%; height: auto; max-height: 100vh; object-fit: contain;" />
+          <img src="${dataUri}" style="width: 100%; height: auto; max-height: 100vh; object-fit: contain;" />
         </div>`;
       });
       htmlContent += '</body></html>';
