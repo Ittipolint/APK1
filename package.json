@@ -10,15 +10,15 @@
     "prebuild": "expo prebuild"
   },
   "dependencies": {
-    "expo": "~50.0.0",
+    "expo": "~50.0.21",
     "expo-status-bar": "~1.11.1",
     "react": "18.2.0",
-    "react-native": "0.73.4",
-    "expo-camera": "~14.0.0",
+    "react-native": "0.73.6",
+    "expo-camera": "~14.0.6",
     "expo-print": "~12.8.1",
-    "expo-file-system": "~16.0.0",
-    "expo-sharing": "~11.7.0",
-    "expo-media-library": "~15.9.1",
+    "expo-file-system": "~16.0.9",
+    "expo-sharing": "~11.10.0",
+    "expo-media-library": "~15.9.2",
     "expo-system-ui": "~2.9.3"
   },
   "devDependencies": {
