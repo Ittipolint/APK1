@@ -1,0 +1,41 @@
+name: Build Android APK
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Setup EAS
+        run: npm install -g eas-cli
+
+      - name: Build APK (Local Build in CI)
+        run: |
+          # Note: EAS local build requires standard Android build tools in CI
+          # For simplicity, we use EAS Build with a free account or GitHub Actions manual build
+          # Here we use a community action or manual gradlew if prebuild is done
+          npm run prebuild -- --platform android
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleRelease
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release
+          path: android/app/build/outputs/apk/release/*.apk
