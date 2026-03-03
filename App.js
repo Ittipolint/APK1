@@ -46,16 +46,17 @@ export default function App() {
     }
 
     try {
-      let htmlContent = '<html><body style="margin:0;padding:0;">';
+      let htmlContent = '<html><body style="margin:0;padding:0;background-color:white;">';
       selectedPhotos.forEach((photo) => {
-        htmlContent += `<div style="page-break-after: always; text-align: center;">
-          <img src="${photo.uri}" style="width: 100%; height: auto; max-height: 100vh; object-fit: contain;" />
+        // Ensure uri has file:// prefix for Android local file access in WebView/Print
+        const imgUri = photo.uri.startsWith('file://') ? photo.uri : `file://${photo.uri}`;
+        htmlContent += `<div style="page-break-after: always; text-align: center; width: 100%;">
+          <img src="${imgUri}" style="width: 100%; height: auto; max-height: 100vh; object-fit: contain;" />
         </div>`;
       });
       htmlContent += '</body></html>';
 
       const { uri } = await Print.printToFileAsync({ html: htmlContent });
-      console.log('PDF created at:', uri);
 
       if (await Sharing.isAvailableAsync()) {
         await Sharing.shareAsync(uri);
@@ -68,7 +69,8 @@ export default function App() {
   };
 
   const clearPhotos = () => {
-    setPhotos([]);
+    // Only remove photos that are selected
+    setPhotos(photos.filter(p => !p.selected));
   };
 
   if (hasPermission === null) {
@@ -79,6 +81,7 @@ export default function App() {
   }
 
   const selectedCount = photos.filter(p => p.selected).length;
+  const totalCount = photos.length;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -93,6 +96,7 @@ export default function App() {
       </View>
 
       <View style={styles.previewContainer}>
+        <Text style={styles.totalText}>รูปทั้งหมด: {totalCount} | เลือก: {selectedCount}</Text>
         <ScrollView horizontal style={styles.scrollView}>
           {photos.map((item, index) => (
             <TouchableOpacity key={index} onPress={() => toggleSelection(index)} style={styles.imageWrapper}>
@@ -117,7 +121,7 @@ export default function App() {
         </TouchableOpacity>
 
         <TouchableOpacity style={[styles.button, styles.clearButton]} onPress={clearPhotos}>
-          <Text style={styles.buttonText}>ล้างรูป</Text>
+          <Text style={styles.buttonText}>ล้าง ({selectedCount})</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -127,14 +131,15 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#fff',
   },
   cameraContainer: {
     flex: 0.6,
     overflow: 'hidden',
-    marginTop: 10,
+    marginTop: 40, // Increased margin to avoid status bar overlap
     marginHorizontal: 10,
     borderRadius: 20,
+    backgroundColor: '#000',
   },
   camera: {
     flex: 1,
@@ -142,6 +147,12 @@ const styles = StyleSheet.create({
   previewContainer: {
     flex: 0.2,
     padding: 10,
+  },
+  totalText: {
+    fontSize: 12,
+    color: '#666',
+    marginBottom: 5,
+    textAlign: 'right',
   },
   scrollView: {
     flexDirection: 'row',
