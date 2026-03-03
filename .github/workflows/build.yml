@@ -12,23 +12,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: "Debug: List files"
-        run: ls -laR
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-
       - name: Install dependencies
         run: npm install
 
       - name: Setup EAS
         run: npm install -g eas-cli
 
-      - name: Build APK (Local Build in CI)
+      - name: Build APK
         run: |
-          # Note: EAS local build requires standard Android build tools in CI
-          # For simplicity, we use EAS Build with a free account or GitHub Actions manual build
-          # Here we use a community action or manual gradlew if prebuild is done
           npm run prebuild -- --platform android
           cd android
           chmod +x gradlew
