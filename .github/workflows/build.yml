@@ -20,6 +20,7 @@ jobs:
 
       - name: Build APK
         run: |
+          npm run prebuild -- --platform android
           cd android
           chmod +x gradlew
           ./gradlew assembleRelease
